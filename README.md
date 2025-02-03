@@ -1,1 +1,1 @@
-# ExplorerSvgSupport
+# SvgThumbnailProvider"# ExplorerSvgSupport" 
