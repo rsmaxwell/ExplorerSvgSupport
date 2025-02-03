@@ -38,7 +38,7 @@
 
 ## How To Install
 ### Using the Installer
-After building the installer, locate the generated `.exe` file in the `build/Release` directory.
+After building the installer, locate the generated `ExplorerSvgSupport-installer.exe` file in the `build/Release` directory.
 
 1. **Run the installer**:
    ```sh

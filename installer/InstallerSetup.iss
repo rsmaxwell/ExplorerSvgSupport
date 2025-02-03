@@ -62,6 +62,7 @@ AppSupportURL=https://github.com/rsmaxwell/ExplorerSvgSupport/issues
 AppUpdatesURL=https://github.com/rsmaxwell/ExplorerSvgSupport/releases
 DefaultDirName="{autopf}\ExplorerSvgSupport"
 DefaultGroupName="ExplorerSvgSupport"
+OutputDir=..\build\{#config}
 OutputBaseFilename="ExplorerSvgSupport-installer"
 Compression=zip
 SolidCompression=yes
