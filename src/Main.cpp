@@ -128,6 +128,10 @@ STDAPI DllRegisterServer() {
         {HKEY_CLASSES_ROOT, L"CLSID\\" szCLSID_ExplorerSvgSupport, NULL, REG_SZ, (DWORD_PTR)L"ExplorerSvgSupport"},
         {HKEY_CLASSES_ROOT, L"CLSID\\" szCLSID_ExplorerSvgSupport L"\\InprocServer32", NULL, REG_SZ, (DWORD_PTR)szModule},
         {HKEY_CLASSES_ROOT, L"CLSID\\" szCLSID_ExplorerSvgSupport L"\\InprocServer32", L"ThreadingModel", REG_SZ, (DWORD_PTR)L"Apartment"},
+
+        // Bind IInitializeWithFile
+        {HKEY_CLASSES_ROOT, L"CLSID\\" szCLSID_ExplorerSvgSupport L"\\Implemented Categories\\{7D688A70-C613-11D0-999B-00C04FD655E1}", NULL, REG_SZ, (DWORD_PTR)L""},
+
         {HKEY_CLASSES_ROOT, L".SVG\\shellex\\" szCLSID_IThumbnailProvider, NULL, REG_SZ, (DWORD_PTR)szCLSID_ExplorerSvgSupport},
         {HKEY_CLASSES_ROOT, L".SVGZ\\shellex\\" szCLSID_IThumbnailProvider, NULL, REG_SZ, (DWORD_PTR)szCLSID_ExplorerSvgSupport}
     };

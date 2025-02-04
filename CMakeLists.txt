@@ -51,8 +51,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${FORMS_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
-#===================== ENABLE ATL SUPPORT =======================#
+# Enable ATL support
 add_definitions(-D_ATL_NO_MODULE -D_ATL_NO_OPENGL -D_ATL_STATIC_REGISTRY)
 
+# Ensure that Qt includes the full log context:
+add_definitions(-DQT_MESSAGELOGCONTEXT)
+
 #===================== LINKING LIBRARIES =======================#
-target_link_libraries(${PROJECT_NAME} Qt6::Widgets;Qt6::Svg;Qt6::Gui;Qt6::Core ole32 oleaut32 uuid)
+target_link_libraries(${PROJECT_NAME} Qt6::Widgets Qt6::Svg Qt6::Gui Qt6::Core Qt6::WebEngineWidgets ole32 oleaut32 uuid)

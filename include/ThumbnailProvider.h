@@ -3,7 +3,7 @@
 #include "Common.h"
 
 
-class CThumbnailProvider : public IThumbnailProvider, IObjectWithSite, IInitializeWithStream
+class CThumbnailProvider : public IThumbnailProvider, IObjectWithSite, IInitializeWithStream, IInitializeWithFile
 {
 private:
     LONG m_cRef;

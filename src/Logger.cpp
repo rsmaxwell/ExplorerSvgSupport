@@ -115,18 +115,19 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext& context, co
 		return; // Ignore messages below the threshold
 	}
 
-	QString log = QObject::tr("%1 | %2 | %3 | %4 | %5 | %6\n").
-		arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")).
-		arg(Logger::contextNames.value(type)).
-		arg(context.line).
-		arg(QString(context.file).
-			section('\\', -1)).			// File name without file path											
-		arg(QString(context.function).
-			section('(', -2, -2).		// Function name only
-			section(' ', -1).
-			section(':', -1)).
-		arg(msg);
+	QString file = context.file ? QString(context.file).section('\\', -1) : "UnknownFile";
+	QString function = context.function ? QString(context.function).section('(', -2, -2).section(' ', -1).section(':', -1) : "UnknownFunction";
+	int line = context.line > 0 ? context.line : -1;
+
+	QString log = QObject::tr("%1 | %2 | %3 | %4 | %5 | %6\n")
+		.arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"))
+		.arg(Logger::contextNames.value(type))
+		.arg(line)
+		.arg(file)
+		.arg(function)
+		.arg(msg);
 
 	logFile->write(log.toLocal8Bit());
 	logFile->flush();
 }
+

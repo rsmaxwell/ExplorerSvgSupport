@@ -5,7 +5,7 @@
 #include <gdiplus.h>
 //#include <assert.h>
 
-// #include <QtCore/QDateTime>
+#include <QtCore/QDateTime>
 //#ifndef NDEBUG
 //#include <QtCore/QString>
 //#include <QtCore/QDir>
@@ -46,7 +46,6 @@ CThumbnailProvider::~CThumbnailProvider()
  * ===============
  */
 HRESULT CThumbnailProvider::QueryInterfaceFactory(REFIID riid, void** ppvObject) {
-    qCDebug(general) << "entry";
     *ppvObject = NULL;
 
     CThumbnailProvider * provider = new CThumbnailProvider();
@@ -58,8 +57,6 @@ HRESULT CThumbnailProvider::QueryInterfaceFactory(REFIID riid, void** ppvObject)
 
     provider->Release();
 
-
-    qCDebug(general) << "exit";
     return result;
 }
 
@@ -70,8 +67,6 @@ QString ToString(char *buffer, size_t buffer_size, const GUID& guid)
 }
 
 STDMETHODIMP CThumbnailProvider::QueryInterface(REFIID riid, void** ppvObject) {
-    char buffer[256];
-    qCDebug(general) << "entry riid" << ToString(buffer, sizeof(buffer), riid);
 
     static const QITAB qit[] =
     {
@@ -81,9 +76,7 @@ STDMETHODIMP CThumbnailProvider::QueryInterface(REFIID riid, void** ppvObject) {
         QITABENT(CThumbnailProvider, IObjectWithSite),
         {0},
     };
-    HRESULT result = QISearch(this, qit, riid, ppvObject);
-    qCDebug(general) << "exit";
-    return result;
+    return QISearch(this, qit, riid, ppvObject);
 }
 
 STDMETHODIMP_(ULONG) CThumbnailProvider::AddRef()
@@ -110,22 +103,42 @@ STDMETHODIMP_(ULONG) CThumbnailProvider::Release()
 
  // Initialize with file (provides file path)
 STDMETHODIMP CThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) {
-    qCDebug(general) << "Initialize with file";
+    qCDebug(general) << "Initialize with file: " << pszFilePath;
+
+    if (loaded) {
+        return HRESULT_FROM_WIN32(ERROR_ALREADY_INITIALIZED);
+    }
+
+    // Convert LPCWSTR to QString
+    QString filePath = QString::fromWCharArray(pszFilePath);
+
+    // Read the file content
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCDebug(general) << "Failed to open file: " << filePath;
+        return E_FAIL;
+    }
+
+    QByteArray fileData = file.readAll();
+    file.close();
+
+    // Load the file data into the renderer
+    loaded = renderer.load(fileData);
+
+    if (!loaded) {
+        qCDebug(general) << "Failed to load SVG content from file.";
+        return S_FALSE;
+    }
+
     return S_OK;
 }
 
-/*
- * ============================
- * IInitializeWithSteam methods
- * ============================
- */
-
+// Initialize with stream
 STDMETHODIMP CThumbnailProvider::Initialize(IStream *pstm, DWORD grfMode) {
     qCDebug(general) << "Initialize with stream";
 
     ULONG len;
     STATSTG stat;
-    Q_UNUSED(grfMode)
 
     if(loaded) {
         return HRESULT_FROM_WIN32(ERROR_ALREADY_INITIALIZED);
@@ -206,6 +219,7 @@ STDMETHODIMP CThumbnailProvider::GetThumbnail(UINT cx,
     painter.end();
 
     assert(!device->isNull());
+    // device->save(QString("C:\\dev\\%1.png").arg(QDateTime::currentMSecsSinceEpoch()), "PNG");
 
     *phbmp = QtWin::toHBITMAP(QPixmap::fromImage(*device), QtWin::HBitmapAlpha);
 

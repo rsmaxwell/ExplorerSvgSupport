@@ -73,14 +73,10 @@ ArchitecturesInstallIn64BitMode=x64compatible
 Name: "en"; MessagesFile: "compiler:Default.isl"; LicenseFile: "..\LICENSE.md"
 
 [Files]
-Source: "..\build\{#config}\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\build\{#config}\ExplorerSvgSupport.dll"; DestDir: "{app}"; Flags: regserver
-
 Source: "..\LICENSE.md"; DestDir: "{app}\license\";
 Source: "{#QtInstallPath}\Licenses\LICENSE"; DestDir: "{app}\license\"; DestName: "Qt-LICENSE";
-
 Source: "{#VisualStudioPath}\VC\Redist\MSVC\v143\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: dontcopy
-
 Source: "{#QtPlatformPath}\bin\{#QtCoreFile}"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\bin\{#QtGuiFile}"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\bin\{#QtSvgFile}"; DestDir: "{app}"
@@ -88,6 +84,7 @@ Source: "{#QtPlatformPath}\bin\{#QtWidgetsFile}"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\plugins\platforms\{#QtPlatformPluginFile}"; DestDir: "{app}\platforms";
 
 #if config == "Debug"
+Source: "..\build\{#config}\ExplorerSvgSupport.pdb"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\bin\{#QtCorePDB}"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\bin\{#QtGuiPDB}"; DestDir: "{app}"
 Source: "{#QtPlatformPath}\bin\{#QtSvgPDB}"; DestDir: "{app}"
@@ -97,6 +94,21 @@ Source: "{#QtPlatformPath}\plugins\platforms\{#QtPlatformPluginPDB}"; DestDir: "
 
 [Code]
 
+procedure KillProcess(ProcessName: string);
+var
+  ResultCode: Integer;
+begin
+  // Use taskkill to forcefully terminate all instances of dllhost.exe
+  if Exec(ExpandConstant('{cmd}'), '/c taskkill /F /IM "' + ProcessName + '" /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    Log('Successfully terminated process: ' + ProcessName);
+  end
+  else
+  begin
+    Log('Failed to terminate process: ' + ProcessName + '. Error code: ' + IntToStr(ResultCode));
+  end;
+end;
+
 // Automatically uninstalls the previously installed version if any
 Procedure CurStepChanged(CurStep: TSetupStep);
 Var
@@ -104,6 +116,8 @@ Var
   Uninstaller: String;
 Begin
   If (CurStep = ssInstall) Then Begin
+    Log('Attempting to terminate dllhost.exe before installation...');
+    KillProcess('dllhost.exe');
     If RegQueryStringValue(HKLM, 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\' + ExpandConstant('{#AppIdGUID}') + '_is1', 'UninstallString', Uninstaller) Then Begin
       Exec(RemoveQuotes(Uninstaller), ' /SILENT', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
     End;

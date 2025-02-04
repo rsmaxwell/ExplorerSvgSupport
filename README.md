@@ -18,15 +18,18 @@
    cd ExplorerSvgSupport
    ```
 
-2. **Configure and generate the Visual Studio solution using CMake**:
-   ```sh
-   mkdir build
-   cd build
-   cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release ..
-   ```
+2. **Configure the project using CMake-gui**:
+   - Open `CMake-gui`.
+   - Set the **Source** directory to the root of the cloned repository.
+   - Set the **Build** directory to a new `build` folder inside the repository (e.g., `ExplorerSvgSupport/build`).
+   - Click **Configure** and select **Visual Studio 17 2022** as the generator.
+   - Choose the appropriate architecture (e.g., `x64`).
+   - Click **Finish** to start the configuration process.
+   - If necessary, adjust any missing dependencies or paths.
+   - Click **Generate** to create the Visual Studio solution.
+   - Once generation is complete, click **Open Project** to launch Visual Studio.
 
-3. **Open Visual Studio and build the project**:
-   - Open `ExplorerSvgSupport.sln` in Visual Studio.
+3. **Build the project in Visual Studio**:
    - Select `Release` configuration.
    - Build the solution (Ctrl + Shift + B).
 
