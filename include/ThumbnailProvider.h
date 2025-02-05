@@ -26,7 +26,7 @@ public:
 
     //  IInitialize... methods
     STDMETHOD(Initialize)(LPCWSTR pszFilePath, DWORD grfMode);
-    STDMETHOD(Initialize)(IStream*, DWORD);
+    STDMETHOD(Initialize)(IStream* pstm, DWORD grfMode);
 
     //  IThumbnailProvider methods
     STDMETHOD(GetThumbnail)(UINT, HBITMAP*, WTS_ALPHATYPE*);

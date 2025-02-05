@@ -5,6 +5,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtWidgets/QApplication>
+#include <QtSvg/QSvgRenderer>
 
 #include "Logger.h"
 
@@ -67,10 +69,7 @@ void Initialize(HMODULE module) {
 }
 
 
-BOOL APIENTRY DllMain(HINSTANCE hinstDll,
-                      DWORD dwReason,
-                      LPVOID pvReserved)
-{
+BOOL APIENTRY DllMain(HINSTANCE hinstDll, DWORD dwReason, LPVOID pvReserved) {
     Q_UNUSED(pvReserved)
     switch (dwReason)
     {
@@ -118,7 +117,6 @@ STDAPI_(ULONG) DllRelease() {
 
 
 STDAPI DllRegisterServer() {
-    qCDebug(general) << "DLLRegisterServer: entry";
     WCHAR szModule[MAX_PATH];
 
     ZeroMemory(szModule, sizeof(szModule));
@@ -132,13 +130,12 @@ STDAPI DllRegisterServer() {
         // Bind IInitializeWithFile
         {HKEY_CLASSES_ROOT, L"CLSID\\" szCLSID_ExplorerSvgSupport L"\\Implemented Categories\\{7D688A70-C613-11D0-999B-00C04FD655E1}", NULL, REG_SZ, (DWORD_PTR)L""},
 
+
         {HKEY_CLASSES_ROOT, L".SVG\\shellex\\" szCLSID_IThumbnailProvider, NULL, REG_SZ, (DWORD_PTR)szCLSID_ExplorerSvgSupport},
         {HKEY_CLASSES_ROOT, L".SVGZ\\shellex\\" szCLSID_IThumbnailProvider, NULL, REG_SZ, (DWORD_PTR)szCLSID_ExplorerSvgSupport}
     };
 
     auto result = CreateRegistryKeys(keys, ARRAYSIZE(keys));
-
-    qCDebug(general) << "DLLRegisterServer: exit";
     return result;
 }
 

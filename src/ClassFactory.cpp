@@ -2,24 +2,23 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
+#include <QtWidgets/QApplication>
+#include <QtSvg/QSvgRenderer>
+
 #include "Common.h"
 #include "ClassFactory.h"
 #include "ThumbnailProvider.h"
 
-CClassFactory::CClassFactory()
-{
+CClassFactory::CClassFactory() {
     m_cRef = 1;
     DllAddRef();
 }
 
-CClassFactory::~CClassFactory()
-{
+CClassFactory::~CClassFactory() {
     DllRelease();
 }
 
-HRESULT CClassFactory::QueryInterfaceFactory(REFIID riid,
-                                             void** ppvObject)
-{
+HRESULT CClassFactory::QueryInterfaceFactory(REFIID riid, void** ppvObject) {
     CClassFactory * factory = new CClassFactory();
     if (factory == nullptr) {
         return E_OUTOFMEMORY;
@@ -32,51 +31,39 @@ HRESULT CClassFactory::QueryInterfaceFactory(REFIID riid,
     return result;
 }
 
-STDMETHODIMP CClassFactory::QueryInterface(REFIID riid,
-                                           void** ppvObject)
-{
-    static const QITAB qit[] =
-    {
+STDMETHODIMP CClassFactory::QueryInterface(REFIID riid, void** ppvObject) {
+    static const QITAB qit[] = {
         QITABENT(CClassFactory, IClassFactory),
         {0},
     };
     return QISearch(this, qit, riid, ppvObject);
 }
 
-STDMETHODIMP_(ULONG) CClassFactory::AddRef()
-{
+STDMETHODIMP_(ULONG) CClassFactory::AddRef() {
     LONG cRef = InterlockedIncrement(&m_cRef);
     return (ULONG)cRef;
 }
 
-STDMETHODIMP_(ULONG) CClassFactory::Release()
-{
+STDMETHODIMP_(ULONG) CClassFactory::Release() {
     LONG cRef = InterlockedDecrement(&m_cRef);
     if (0 == cRef)
         delete this;
     return (ULONG)cRef;
 }
 
-STDMETHODIMP CClassFactory::CreateInstance(IUnknown* punkOuter,
-                                           REFIID riid,
-                                           void** ppvObject)
-{
+STDMETHODIMP CClassFactory::CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppvObject) {
     if (NULL != punkOuter)
         return CLASS_E_NOAGGREGATION;
 
     return CThumbnailProvider::QueryInterfaceFactory(riid, ppvObject);
 }
 
-STDMETHODIMP CClassFactory::LockServer(BOOL fLock)
-{
+STDMETHODIMP CClassFactory::LockServer(BOOL fLock) {
     Q_UNUSED(fLock);
     return E_NOTIMPL;
 }
 
-STDAPI DllGetClassObject(REFCLSID rclsid,
-                         REFIID riid,
-                         void **ppv)
-{
+STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void **ppv) {
     if (NULL == ppv)
         return E_INVALIDARG;
 

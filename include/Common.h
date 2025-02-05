@@ -29,7 +29,7 @@ DEFINE_GUID(CLSID_ExplorerSvgSupport,   0xB018B71A, 0x7A1D, 0x4D0B, 0xA5, 0xE9, 
 #define szCLSID_IThumbnailProvider L"{E357FCCD-A995-4576-B01F-234630154E96}"
  
 
-#include <QtWidgets/QApplication>
-#include <QtSvg/QSvgRenderer>
+// #include <QtWidgets/QApplication>
+// #include <QtSvg/QSvgRenderer>
 
 #endif // COMMON_H

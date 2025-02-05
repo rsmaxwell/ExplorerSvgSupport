@@ -1,26 +1,13 @@
-//#include "Common.h"
-#include "ThumbnailProvider.h"
-
-//#include <objbase.h>
-#include <gdiplus.h>
-//#include <assert.h>
 
 #include <QtCore/QDateTime>
-//#ifndef NDEBUG
-//#include <QtCore/QString>
-//#include <QtCore/QDir>
-//#include <QtCore/QFile>
-//#endif
-
-//#include <QtGui/QImage>
 #include <QtGui/QPainter>
-//#include <QtGui/QPixmap>
+#include <QtWidgets/QApplication>
+#include <QtSvg/QSvgRenderer>
 
+#include "ThumbnailProvider.h"
 #include "Extra.h"
 #include "Logger.h"
 
-
-using namespace Gdiplus;
 
 CThumbnailProvider::CThumbnailProvider()
 {
@@ -60,33 +47,45 @@ HRESULT CThumbnailProvider::QueryInterfaceFactory(REFIID riid, void** ppvObject)
     return result;
 }
 
-QString ToString(char *buffer, size_t buffer_size, const GUID& guid)
-{        
+QString ToString(char *buffer, size_t buffer_size, const GUID& guid) {        
     int n = snprintf(buffer, buffer_size, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X", guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
     return QString(buffer);
 }
 
-STDMETHODIMP CThumbnailProvider::QueryInterface(REFIID riid, void** ppvObject) {
 
-    static const QITAB qit[] =
-    {
+STDMETHODIMP CThumbnailProvider::QueryInterface(REFIID riid, void** ppvObject) {
+    *ppvObject = NULL;
+
+    if (IsEqualIID(riid, IID_IInitializeWithFile)) {
+        qCDebug(general) << "QueryInterface: IInitializeWithFile requested";
+    }
+    if (IsEqualIID(riid, IID_IInitializeWithStream)) {
+        qCDebug(general) << "QueryInterface: IInitializeWithStream requested";
+    }
+    if (IsEqualIID(riid, IID_IThumbnailProvider)) {
+        qCDebug(general) << "QueryInterface: IThumbnailProvider requested";
+    }
+
+    static const QITAB qit[] = {
         QITABENT(CThumbnailProvider, IInitializeWithFile),
         QITABENT(CThumbnailProvider, IInitializeWithStream),
         QITABENT(CThumbnailProvider, IThumbnailProvider),
         QITABENT(CThumbnailProvider, IObjectWithSite),
         {0},
     };
+
     return QISearch(this, qit, riid, ppvObject);
 }
 
-STDMETHODIMP_(ULONG) CThumbnailProvider::AddRef()
-{
+
+
+
+STDMETHODIMP_(ULONG) CThumbnailProvider::AddRef() {
     LONG cRef = InterlockedIncrement(&m_cRef);
     return (ULONG)cRef;
 }
 
-STDMETHODIMP_(ULONG) CThumbnailProvider::Release()
-{
+STDMETHODIMP_(ULONG) CThumbnailProvider::Release() {
     LONG cRef = InterlockedDecrement(&m_cRef);
     if (0 == cRef)
         delete this;
@@ -100,8 +99,7 @@ STDMETHODIMP_(ULONG) CThumbnailProvider::Release()
  */
 
 
-
- // Initialize with file (provides file path)
+// Initialize with file (provides file path)
 STDMETHODIMP CThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) {
     qCDebug(general) << "Initialize with file: " << pszFilePath;
 
@@ -132,6 +130,10 @@ STDMETHODIMP CThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) 
 
     return S_OK;
 }
+
+
+
+
 
 // Initialize with stream
 STDMETHODIMP CThumbnailProvider::Initialize(IStream *pstm, DWORD grfMode) {
@@ -173,10 +175,7 @@ STDMETHODIMP CThumbnailProvider::Initialize(IStream *pstm, DWORD grfMode) {
  * ============================
  */
 
-STDMETHODIMP CThumbnailProvider::GetThumbnail(UINT cx, 
-                                              HBITMAP *phbmp,
-                                              WTS_ALPHATYPE *pdwAlpha)
-{
+STDMETHODIMP CThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     qCDebug(general) << "GetThumbnail";
 
     *phbmp = NULL;
@@ -189,9 +188,8 @@ STDMETHODIMP CThumbnailProvider::GetThumbnail(UINT cx,
 
     // Fit the render into a (cx * cx) square while maintaining the aspect ratio.
     QSize size = renderer.defaultSize();
-    size.scale(cx, cx, Qt::AspectRatioMode::KeepAspectRatio);
-
     qCDebug(general) << "Size: " << cx;
+    size.scale(cx, cx, Qt::AspectRatioMode::KeepAspectRatio);
 
     QImage * device = new QImage(size, QImage::Format_ARGB32);
     device->fill(Qt::transparent);
@@ -244,27 +242,21 @@ STDMETHODIMP CThumbnailProvider::GetThumbnail(UINT cx,
  * ============================
  */
 
-STDMETHODIMP CThumbnailProvider::GetSite(REFIID riid, 
-                                         void** ppvSite)
-{
-    if (m_pSite)
-    {
+STDMETHODIMP CThumbnailProvider::GetSite(REFIID riid, void** ppvSite) {
+    if (m_pSite) {
         return m_pSite->QueryInterface(riid, ppvSite);
     }
     return E_NOINTERFACE;
 }
 
-STDMETHODIMP CThumbnailProvider::SetSite(IUnknown* pUnkSite)
-{
-    if (m_pSite)
-    {
+STDMETHODIMP CThumbnailProvider::SetSite(IUnknown* pUnkSite) {
+    if (m_pSite) {
         m_pSite->Release();
         m_pSite = NULL;
     }
 
     m_pSite = pUnkSite;
-    if (m_pSite)
-    {
+    if (m_pSite) {
         m_pSite->AddRef();
     }
     return S_OK;
