@@ -22,10 +22,8 @@
    - Open `CMake-gui`.
    - Set the **Source** directory to the root of the cloned repository.
    - Set the **Build** directory to a new `build` folder inside the repository (e.g., `ExplorerSvgSupport/build`).
-   - Click **Configure** and select **Visual Studio 17 2022** as the generator.
-   - Choose the appropriate architecture (e.g., `x64`).
+   - Click **Configure** 
    - Click **Finish** to start the configuration process.
-   - If necessary, adjust any missing dependencies or paths.
    - Click **Generate** to create the Visual Studio solution.
    - Once generation is complete, click **Open Project** to launch Visual Studio.
 

@@ -3,7 +3,7 @@ setlocal
 
 
 REM Define variables
-set Configuration=Debug
+set Configuration=Release
 set InnoSetupPath=C:\Program Files (x86)\Inno Setup 6
 set IssFile=./installer/InstallerSetup.iss
 set QtPlatformPath=C:\Qt\6.8.1\msvc2022_64
